@@ -73,9 +73,11 @@ function resolveUrl(options) {
       }
     }
 
+    
+
     // Make source map absolute
-    var absSourceMap = adjustSourceMap(this, {format: 'absolute'}, sourceMap);
-    absSourceMap.sources = absSourceMap.sources.map(x=>stripDriveName(x));
+    var absSourceMap = sourceMap;
+    absSourceMap.sources = absSourceMap.sources.map(x=>path.join(file.base, x));
 
     // Note the current sourceRoot before it is removed
     //  later when we go back to relative paths, we need to add it again

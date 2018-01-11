@@ -1,6 +1,6 @@
 {
   "name": "gulp-resolve-url",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Gulp plugin that resolves relative paths in url() statements based on the original source file",
   "main": "index.js",
   "repository": {
@@ -42,6 +42,7 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
+    "gulp-sass": "^3.1.0",
     "gulp-sourcemap": "^1.0.1",
     "gulp-sourcemaps": "^2.6.3",
     "istanbul": "^0.4.5",
