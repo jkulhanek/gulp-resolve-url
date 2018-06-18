@@ -1,6 +1,6 @@
 # Resolve URL gulp plugin
 
-![status](https://secure.travis-ci.org//jonaskulhanek/gulp-resolve-url.svg?branch=master)
+![status](https://secure.travis-ci.org//jkulhanek/gulp-resolve-url.svg?branch=master)
 
 Gulp plugin that resolves relative paths in url() statements based on the original source file using sourcemaps.
 
