@@ -30,5 +30,20 @@ describe('gulp-resolve-url', function() {
           .pipe(assert.end(done));
       });
 
+    it('should produce urls that contain the full module path when the absolute option is included', function (done) {
+      var stream = gulp.src([path.join(basePath, "main.scss")], {base:basePath})
+        .pipe(sourcemaps.init())
+        .pipe(sass())
+        .pipe(resolveUrl({
+          root: __dirname,
+          absolute: true
+        }));
+
+      stream
+        .pipe(assert.length(1))
+        .pipe(assert.first(function (d) { d.contents.toString().should.containEql('/test/fixtures/sub/resource.png'); }))
+        .pipe(assert.end(done));
+      });
+
   });
 });
