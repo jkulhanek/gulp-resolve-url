@@ -1,6 +1,6 @@
 {
   "name": "gulp-resolve-url",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Gulp plugin that resolves relative paths in url() statements based on the original source file",
   "main": "index.js",
   "repository": {
