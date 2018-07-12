@@ -25,9 +25,9 @@ var PACKAGE_NAME = require('./package.json').name;
 /**
  * A gulp plugin that resolves absolute url() paths relative to their original source file.
  * Requires source-maps to do any meaningful work.
- * @param {object} options Options
+ * @param {object} config Options
  */
-function resolveUrl(options) {
+function resolveUrl(config) {
   return through.obj(function (file, encoding, cb) {
 
     if (!file.sourceMap) {
@@ -37,7 +37,7 @@ function resolveUrl(options) {
     }
 
     var sourceMap = file.sourceMap;
-    var options = defaults(options || {}, {
+    var options = defaults(config || {}, {
       absolute: false,
       fail: true,
       silent: false,
