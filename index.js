@@ -46,7 +46,8 @@ function resolveUrl(config) {
       debug: false,
       root: null,
       includeRoot: false,
-      destination: null
+      destination: null,
+      relativeToRoot: false
     });
 
     var filePath = path.dirname(file.path);
@@ -60,6 +61,29 @@ function resolveUrl(config) {
       handleException('"root" option does not resolve to a valid path');
       cb();
       return;
+    }
+
+    // root-relative options
+    var resolvedWebRoot = undefined, isValidWebRoot = false;
+    if (options.relativeToRoot) {
+      if (typeof options.relativeToRoot === 'string') {
+        // The option specifies the web docroot; validate it
+        resolvedWebRoot = path.resolve(options.relativeToRoot);
+        isValidWebRoot = resolvedWebRoot && fs.existsSync(resolvedWebRoot);
+        if (!isValidWebRoot) {
+          handleException('A valid path was not supplied in the "relativeToRoot" option.');
+          cb();
+          return;
+        }
+      } else if (isValidRoot) {
+        // The root option was specified and is valid, use it as the docroot
+        resolvedWebRoot = resolvedRoot;
+        isValidWebRoot = true;
+      } else {
+        // The relativeToRoot option was supplied, but a path was not supplied, use cwd
+        resolvedWebRoot = process.cwd();
+        isValidWebRoot = true;
+      }
     }
 
     // validate destination directory
@@ -241,6 +265,11 @@ function resolveUrl(config) {
             else if (options.destination && isValidDest) {
               var destRelative = absolute && path.relative(resolvedDest, absolute);
               return (destRelative) ? destRelative.replace(BACKSLASH_REGEX, '/').concat(query) : initialised;
+            }
+            // use root-relative path
+            else if (options.relativeToRoot && isValidWebRoot) {
+              var webRootRelative = absolute && path.relative(resolvedWebRoot, absolute);
+              return (webRootRelative) ? '/' + webRootRelative.replace(BACKSLASH_REGEX, '/').concat(query) : initialised;
             }
             // module relative path (or default to initialised)
             else {
