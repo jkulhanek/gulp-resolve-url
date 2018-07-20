@@ -44,6 +44,44 @@ describe('gulp-resolve-url', function() {
         .pipe(assert.first(function (d) { d.contents.toString().should.containEql('/test/fixtures/sub/resource.png'); }))
         .pipe(assert.end(done));
       });
+    
+    it ('should produce urls relative to the destination path of the output', function (done) {
+      var srcPath = path.join(basePath, "main.scss");
+      var destPath = path.join(basePath, "build", "css");
+      var stream = gulp.src([srcPath], {base:basePath})
+        .pipe(sourcemaps.init())
+        .pipe(sass())
+        .pipe(resolveUrl({
+          root: __dirname,
+          destination: destPath
+        }));
+      
+      stream
+        .pipe(assert.length(1))
+        .pipe(assert.first(function (d) {
+          d.contents.toString().should.containEql('background-image: url("../../sub/resource.png");');
+        }))
+        .pipe(assert.end(done));
+    });
+    
+    it ('should produce urls relative to the website docroot', function (done) {
+      var srcPath = path.join(basePath, "main.scss");
+      var destPath = path.join(basePath, "build", "css");
+      var stream = gulp.src([srcPath], {base:basePath})
+        .pipe(sourcemaps.init())
+        .pipe(sass())
+        .pipe(resolveUrl({
+          root: __dirname,
+          relativeToRoot: true,
+        }))
+        .pipe(assert.length(1))
+        .pipe(assert.first(function (d) {
+          d.contents.toString().should.containEql('background-image: url("/fixtures/sub/resource.png");');
+        }));
+      
+      stream
+        .pipe(assert.end(done));
+    });
 
   });
 });

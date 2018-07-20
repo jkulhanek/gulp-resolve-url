@@ -45,7 +45,9 @@ function resolveUrl(config) {
       attempts: 0,
       debug: false,
       root: null,
-      includeRoot: false
+      includeRoot: false,
+      destination: null,
+      relativeToRoot: false
     });
 
     var filePath = path.dirname(file.path);
@@ -57,6 +59,38 @@ function resolveUrl(config) {
       isValidRoot = resolvedRoot && fs.existsSync(resolvedRoot);
     if (options.root && !isValidRoot) {
       handleException('"root" option does not resolve to a valid path');
+      cb();
+      return;
+    }
+
+    // root-relative options
+    var resolvedWebRoot = undefined, isValidWebRoot = false;
+    if (options.relativeToRoot) {
+      if (typeof options.relativeToRoot === 'string') {
+        // The option specifies the web docroot; validate it
+        resolvedWebRoot = path.resolve(options.relativeToRoot);
+        isValidWebRoot = resolvedWebRoot && fs.existsSync(resolvedWebRoot);
+        if (!isValidWebRoot) {
+          handleException('A valid path was not supplied in the "relativeToRoot" option.');
+          cb();
+          return;
+        }
+      } else if (isValidRoot) {
+        // The root option was specified and is valid, use it as the docroot
+        resolvedWebRoot = resolvedRoot;
+        isValidWebRoot = true;
+      } else {
+        // The relativeToRoot option was supplied, but a path was not supplied, use cwd
+        resolvedWebRoot = process.cwd();
+        isValidWebRoot = true;
+      }
+    }
+
+    // validate destination directory
+    var resolvedDest = (typeof options.destination === 'string') && path.resolve(options.destination) || undefined,
+      isValidDest = resolvedDest && fs.existsSync(resolvedDest);
+    if (options.destination && !isValidDest) {
+      handleException('"destination" option does not resolve to a valid path');
       cb();
       return;
     }
@@ -226,6 +260,16 @@ function resolveUrl(config) {
             // use the absolute path (or default to initialised)
             if (options.absolute) {
               return absolute && absolute.replace(BACKSLASH_REGEX, '/').concat(query) || initialised;
+            }
+            // use the provided destination path
+            else if (options.destination && isValidDest) {
+              var destRelative = absolute && path.relative(resolvedDest, absolute);
+              return (destRelative) ? destRelative.replace(BACKSLASH_REGEX, '/').concat(query) : initialised;
+            }
+            // use root-relative path
+            else if (options.relativeToRoot && isValidWebRoot) {
+              var webRootRelative = absolute && path.relative(resolvedWebRoot, absolute);
+              return (webRootRelative) ? '/' + webRootRelative.replace(BACKSLASH_REGEX, '/').concat(query) : initialised;
             }
             // module relative path (or default to initialised)
             else {
