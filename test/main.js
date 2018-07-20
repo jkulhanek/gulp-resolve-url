@@ -62,7 +62,7 @@ describe('gulp-resolve-url', function() {
           d.contents.toString().should.containEql('background-image: url("../../sub/resource.png");');
         }))
         .pipe(assert.end(done));
-    })
+    });
 
   });
 });
