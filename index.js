@@ -45,7 +45,8 @@ function resolveUrl(config) {
       attempts: 0,
       debug: false,
       root: null,
-      includeRoot: false
+      includeRoot: false,
+      destination: null
     });
 
     var filePath = path.dirname(file.path);
@@ -57,6 +58,15 @@ function resolveUrl(config) {
       isValidRoot = resolvedRoot && fs.existsSync(resolvedRoot);
     if (options.root && !isValidRoot) {
       handleException('"root" option does not resolve to a valid path');
+      cb();
+      return;
+    }
+
+    // validate destination directory
+    var resolvedDest = (typeof options.destination === 'string') && path.resolve(options.destination) || undefined,
+      isValidDest = resolvedDest && fs.existsSync(resolvedDest);
+    if (options.destination && !isValidDest) {
+      handleException('"destination" option does not resolve to a valid path');
       cb();
       return;
     }
@@ -226,6 +236,11 @@ function resolveUrl(config) {
             // use the absolute path (or default to initialised)
             if (options.absolute) {
               return absolute && absolute.replace(BACKSLASH_REGEX, '/').concat(query) || initialised;
+            }
+            // use the provided destination path
+            else if (options.destination && isValidDest) {
+              var destRelative = absolute && path.relative(resolvedDest, absolute);
+              return (destRelative) ? destRelative.replace(BACKSLASH_REGEX, '/').concat(query) : initialised;
             }
             // module relative path (or default to initialised)
             else {
